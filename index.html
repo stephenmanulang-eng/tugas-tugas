@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Gempa Terkini BMKG</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f6f8;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #0077b6;
+      color: white;
+      text-align: center;
+      padding: 1rem 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+
+    main {
+      padding: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background: #0077b6;
+      color: white;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+    }
+
+    tr:hover {
+      background-color: #f1f9ff;
+    }
+
+    .magnitude {
+      font-weight: bold;
+      text-align: center;
+      color: #d62828;
+    }
+
+    .loading {
+      text-align: center;
+      margin-top: 50px;
+      font-size: 1.2rem;
+      color: #555;
+    }
+
+    @media (max-width: 700px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      th {
+        display: none;
+      }
+      tr {
+        margin-bottom: 15px;
+        background: #fff;
+        border-radius: 8px;
+        padding: 10px;
+      }
+      td {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 10px;
+        border: none;
+        border-bottom: 1px solid #eee;
+      }
+      td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #0077b6;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Data Gempa Terkini BMKG</h1>
+  </header>
+
+  <main>
+    <div id="loading" class="loading">Memuat data gempa terkini...</div>
+    <table id="gempaTable" style="display:none;">
+      <thead>
+        <tr>
+          <th>Tanggal</th>
+          <th>Jam</th>
+          <th>Wilayah</th>
+          <th>Magnitude</th>
+          <th>Kedalaman</th>
+          <th>Lintang</th>
+          <th>Bujur</th>
+          <th>Potensi</th>
+        </tr>
+      </thead>
+      <tbody id="gempaBody"></tbody>
+    </table>
+  </main>
+
+  <script>
+    const url = "https://data.bmkg.go.id/DataMKG/TEWS/gempaterkini.json";
+
+    async function loadGempa() {
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const daftarGempa = data.Infogempa.gempa;
+
+        const tbody = document.getElementById("gempaBody");
+        const table = document.getElementById("gempaTable");
+        const loading = document.getElementById("loading");
+
+        tbody.innerHTML = "";
+        daftarGempa.forEach((g) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td data-label="Tanggal">${g.Tanggal}</td>
+            <td data-label="Jam">${g.Jam}</td>
+            <td data-label="Wilayah">${g.Wilayah}</td>
+            <td data-label="Magnitude" class="magnitude">${g.Magnitude}</td>
+            <td data-label="Kedalaman">${g.Kedalaman}</td>
+            <td data-label="Lintang">${g.Lintang}</td>
+            <td data-label="Bujur">${g.Bujur}</td>
+            <td data-label="Potensi">${g.Potensi}</td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        loading.style.display = "none";
+        table.style.display = "table";
+      } catch (error) {
+        document.getElementById("loading").innerText = "Gagal memuat data. Coba lagi nanti.";
+        console.error("Error:", error);
+      }
+    }
+
+    loadGempa();
+  </script>
+
+</body>
+</html>
